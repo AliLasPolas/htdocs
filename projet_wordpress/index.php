@@ -1,3 +1,10 @@
+<head>
+	        <style type="text/css">
+            .page-breadcrumb{
+            	display: none;
+            }
+        </style>     
+</head>
 <?php
 /**
  * Front to the WordPress application. This file doesn't do anything, but loads

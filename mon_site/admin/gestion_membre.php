@@ -2,8 +2,6 @@
 
 require_once("../inc/init.inc.php");
 
-$condition = 0;
-// Suppression d'un membre
 if (isset($_GET['action']) && $_GET['action'] == 'suppression') {
 	executeRequete("
 		DELETE FROM membre WHERE id_membre = '$_GET[id_membre]'

@@ -20,8 +20,8 @@ if (isset($_POST['payer'])) {
 	for ($i=0; $i < count($_SESSION['panier']['id_produit']) ; $i++) { 
 		$resultat = executeRequete("SELECT * FROM produit WHERE id_produit =" . $_SESSION['panier']['id_produit'][$i]);
 		$produit = $resultat->fetch_assoc();
-		if($produit['stock'] < $_SESSION['panier']['quantite']['$i']){
-			$contenu .= '<hr><div class="erreur">Stock restant';
+		if($produit['stock'] < $_SESSION['panier']['quantite'][$i]){
+			$contenu .= '<hr><div class="erreur">Stock restant'.
 			$produit['stock'] . "</div>";
 			$contenu .= '<div class = "erreur">Quantité demandé ' . $_SESSION['panier']['quantite'][$i] . '</div>';
 			if ($produit['stock'] > 0) {
@@ -30,15 +30,30 @@ if (isset($_POST['payer'])) {
 			}
 			else{
 				$contenu .= '<div class="erreur">Le produit ' . $_SESSION['panier']['id_produit'][$i] . ' a été retiré de votre panier car nous sommes en rupture de stock, veuillez vérifier vos achats </div>';
+				retirerProduitDuPanier($_SESSION['panier']['id_produit'][$i]);
+				$i--;
 			}
+			$erreur = true;
 		}
+	}
+	if(!isset($erreur)){
+		executeRequete("INSERT INTO commande (id_membre, montant, date_enregistrement) VALUES (" . $_SESSION['membre']['id_membre'] . "," . montantTotal() . ", NOW())");
+		$id_commande = $mysqli->insert_id;
+		for ($i=0; $i < count($_SESSION['panier']['id_produit']) ; $i++) { 
+			executeRequete("INSERT INTO details_commande(id_commande, id_produit, quantite, prix) VALUES($id_commande, " . $_SESSION['panier']['id_produit'][$i] . "," . $_SESSION['panier']['quantite'][$i] . "," . $_SESSION['panier']['prix'][$i] . ")");
+			executeRequete("UPDATE produit SET stock = stock - " . $_SESSION['panier']['id_produit'][$i]);
+		}
+		unset($_SESSION['panier']);
+		mail($_SESSION['membre']['email'], "confirmation de la commande", "Merci votre n° de suivi est le $id_commande", "From:ali.nizamuddin@lepoles.com");
+		$contenu .= "<div class='validation'>Merci pour votre commande. Votre n° de suivi est la $id_commande</div>";
 	}
 }
 
-// debug($_SESSION);
+debug($_SESSION);
 // ---------- AFFICHAGE HTML ---------- //
 require_once("inc/haut.inc.php");
 
+echo $contenu;
 
 echo "<table border='1' style='border-collapse:collapse;' cellpadding='7'>";
 echo "<tr><td colspan='5'>Panier</td></tr>";

@@ -1,7 +1,5 @@
 <?php 
 require_once("../inc/init.inc.php");
-//debug($_GET);
-//----- SUPPRESSION -----//
 
 if (isset($_GET['action']) && $_GET['action'] == 'suppression') {
 	executeRequete("
@@ -11,14 +9,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'suppression') {
 	$_GET['action'] = 'affichage';
 }
 
-//----- ENREGISTREMENT PRODUIT -----//
 if (!empty($_POST)) {
 	$photo_bdd = "";
 	if (isset($_GET['action']) && $_GET['action'] == 'modification') {
 		$photo_bdd = $_POST['photo_actuelle'];
 	}
 	if (!empty($_FILES['photo']['name'])) {
-		// debug($_FILES);
 		$nom_photo = $_POST['reference'] . '' . $_FILES['photo']['name'];
 		$photo_bdd = URL . "photo/$nom_photo"; 
 		$photo_dossier = RACINE_SITE . "/photo/$nom_photo";
